@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Hehehe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap');
+
+        :root {
+            --bg: #0c0c14;
+            --card: #14141f;
+            --border: #8a2be2;
+            --hover: #00f0ff;
+            --text: #eaeaff;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Orbitron', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4vh 2rem;
+            background-image: radial-gradient(ellipse at top, #141422 0%, #05050b 100%);
+            min-height: 100vh;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 820px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        input[type="text"] {
+            padding: 0.85rem 1.2rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            border-radius: 12px;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--hover);
+            box-shadow: 0 0 12px var(--hover);
+        }
+
+        .button {
+            padding: 0.9rem 1.5rem;
+            background: transparent;
+            color: var(--hover);
+            border: 1px solid var(--hover);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            align-self: flex-end;
+        }
+
+        .button:hover {
+            background: rgba(0, 255, 255, 0.05);
+            box-shadow: 0 0 15px var(--hover);
+        }
+
+        .results {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        .gif-card {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .gif-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--hover);
+        }
+
+        .gif-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            background: var(--hover);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.4s;
+            font-size: 0.9rem;
+            box-shadow: 0 0 10px var(--hover);
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <input id="searchInput" type="text" placeholder="Invoke a GIF..." />
+    <button class="button" onclick="searchGifs()">Deploy</button>
+    <div id="results" class="results"></div>
+</div>
+
+<div id="toast">🜏 Background updated</div>
+
+<script>
+    const API_KEY = "zXmvEHOdNxPppYUFZnYK8XwaQ05pRJKm";
+
+    async function searchGifs() {
+        const query = document.getElementById('searchInput').value;
+        const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${encodeURIComponent(query)}&limit=12&rating=pg`);
+        const data = await res.json();
+
+        const container = document.getElementById('results');
+        container.innerHTML = '';
+
+        data.data.forEach(gif => {
+            const div = document.createElement('div');
+            div.className = 'gif-card';
+            div.innerHTML = `<img src="${gif.images.fixed_height.url}" alt="gif" />`;
+            div.onclick = () => pickGif(gif.images.original.url);
+            container.appendChild(div);
+        });
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.opacity = 1;
+        setTimeout(() => (toast.style.opacity = 0), 2000);
+    }
+
+    async function pickGif(gifUrl) {
+        try {
+            await fetch('https://gifinput.onrender.com/set-gif', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gifUrl })
+            });
+            showToast("🜏 Background updated");
+        } catch (err) {
+            showToast("⚠ Failed to update");
+            console.error(err);
+        }
+    }
+</script>
+</body>
+</html>

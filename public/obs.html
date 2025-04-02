@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OBS Background</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+    }
+
+    #bg {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+<img id="bg" src="" alt="Background GIF" />
+<script>
+  const bg = document.getElementById('bg');
+
+  async function fetchGif() {
+    const res = await fetch('https://gifinput.onrender.com/current-gif');
+    const data = await res.json();
+    if (bg.src !== data.gifUrl) {
+      bg.src = data.gifUrl;
+    }
+    setTimeout(fetchGif, 3000);
+  }
+
+  fetchGif();
+</script>
+</body>
+</html>
